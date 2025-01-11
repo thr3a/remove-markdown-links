@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { Command } from 'commander';
-import type { Link, Parent, Root } from 'mdast';
+import type { Link, Node, Parent } from 'mdast';
 import remarkParse from 'remark-parse';
 import remarkStringify from 'remark-stringify';
 import { unified } from 'unified';
@@ -9,8 +9,8 @@ import { visit } from 'unist-util-visit';
 const program = new Command();
 
 program
-  .name('remove-markdown-links')
-  .description('Removes links from a markdown file')
+  .name('remove-markdown-links-and-images')
+  .description('Removes links and images from a markdown file')
   .version('0.1.0')
   .argument('<input>', 'input markdown file')
   .option('-o, --output <output>', 'output file');
@@ -22,10 +22,14 @@ const outputFile = program.opts().output;
 
 const processor = unified()
   .use(remarkParse)
-  .use(() => (tree: Root) => {
-    visit(tree, 'link', (node: Link, index, parent: Parent | undefined) => {
+  .use(() => (tree: Node) => {
+    visit(tree, ['link', 'image'], (node: Node, index, parent: Parent | undefined) => {
       if (parent && index !== undefined) {
-        parent.children.splice(index, 1, ...node.children);
+        if (node.type === 'link') {
+          parent.children.splice(index, 1, ...(node as Link).children);
+        } else if (node.type === 'image') {
+          parent.children.splice(index, 1);
+        }
       }
     });
   })
