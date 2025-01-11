@@ -5,8 +5,8 @@ WORKDIR /app
 # 依存関係をインストールするステージ
 FROM base as dependencies
 
-COPY package.json .
-COPY package-lock.json .
+COPY package.json ./
+COPY package-lock.json ./
 RUN bun install
 
 # ビルドステージ
@@ -17,7 +17,10 @@ COPY . .
 # 実行ステージ
 FROM base
 
-COPY --from=build /app/main.ts /app/main.ts
-COPY --from=build /app/node_modules /app/node_modules
+WORKDIR /app
 
-ENTRYPOINT ["bun", "run", "/app/main.ts"]
+COPY --from=build /app/main.ts /opt/remove-markdown-links/main.ts
+COPY --from=build /app/markdownProcessor.ts /opt/remove-markdown-links/markdownProcessor.ts
+COPY --from=build /app/node_modules /opt/remove-markdown-links/node_modules
+
+ENTRYPOINT ["bun", "run", "/opt/remove-markdown-links/main.ts"]
