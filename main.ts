@@ -9,7 +9,8 @@ program
   .description('Removes links and images from a markdown file')
   .version('0.1.0')
   .argument('<input>', 'input markdown file')
-  .option('-o, --output <output>', 'output file');
+  .option('-o, --output <output>', 'output file')
+  .option('--override', 'override the input file');
 
 program.parse();
 
@@ -21,7 +22,9 @@ async function main() {
     const markdown = fs.readFileSync(inputFile, 'utf-8');
     const result = await processMarkdown(markdown);
 
-    if (outputFile) {
+    if (program.opts().override) {
+      fs.writeFileSync(inputFile, result);
+    } else if (outputFile) {
       fs.writeFileSync(outputFile, result);
     } else {
       console.log(result);
