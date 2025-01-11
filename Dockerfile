@@ -17,7 +17,7 @@ COPY . .
 # 実行ステージ
 FROM base
 
-COPY --from=build /app/index.ts /app/index.ts
+COPY --from=build /app/main.ts /app/main.ts
 COPY --from=build /app/node_modules /app/node_modules
 
-ENTRYPOINT ["bun", "run", "/app/index.ts"]
+ENTRYPOINT ["bun", "run", "/app/main.ts"]
